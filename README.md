@@ -1,5 +1,7 @@
 # latres_harry_potter
-
+Nama    : Abraham Valentino Tarigan
+NIM     : 124240099
+Plug    : SI-G
 A new Flutter project.
 
 ## Getting Started
