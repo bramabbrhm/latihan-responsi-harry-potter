@@ -1,0 +1,65 @@
+import 'package:hive/hive.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../models/spell_model.dart';
+
+class StorageService {
+  static const String _keyIsLoggedIn = 'isLoggedIn';
+  static const String _keyUsername = 'username';
+  static const String favoriteSpellsBoxName = 'favorite_spells';
+
+  // --- SharedPreferences Helper ---
+
+  Future<void> saveLoginSession(String username) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_keyIsLoggedIn, true);
+    await prefs.setString(_keyUsername, username);
+  }
+
+  Future<bool> checkLoginSession() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_keyIsLoggedIn) ?? false;
+  }
+
+  Future<void> clearLoginSession() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_keyIsLoggedIn, false);
+  }
+
+  Future<String?> getUsername() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_keyUsername);
+  }
+
+  // --- Hive Helper ('favorite_spells') ---
+
+  Future<Box<SpellModel>> getFavoriteBox() async {
+    if (Hive.isBoxOpen(favoriteSpellsBoxName)) {
+      return Hive.box<SpellModel>(favoriteSpellsBoxName);
+    }
+    return await Hive.openBox<SpellModel>(favoriteSpellsBoxName);
+  }
+
+  Box<SpellModel> getOpenBox() {
+    return Hive.box<SpellModel>(favoriteSpellsBoxName);
+  }
+
+  Future<void> addFavoriteSpell(SpellModel spell) async {
+    final box = await getFavoriteBox();
+    await box.put(spell.spell, spell);
+  }
+
+  Future<void> removeFavoriteSpell(String spellName) async {
+    final box = await getFavoriteBox();
+    await box.delete(spellName);
+  }
+
+  Future<bool> isFavorite(String spellName) async {
+    final box = await getFavoriteBox();
+    return box.containsKey(spellName);
+  }
+
+  Future<List<SpellModel>> getFavoriteSpells() async {
+    final box = await getFavoriteBox();
+    return box.values.toList();
+  }
+}
