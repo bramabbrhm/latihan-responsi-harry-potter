@@ -9,56 +9,56 @@ class StorageService {
 
   // --- SharedPreferences Helper ---
 
-  Future<void> saveLoginSession(String username) async {
+  static Future<void> saveLoginSession(String username) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_keyIsLoggedIn, true);
     await prefs.setString(_keyUsername, username);
   }
 
-  Future<bool> checkLoginSession() async {
+  static Future<bool> checkLoginSession() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getBool(_keyIsLoggedIn) ?? false;
   }
 
-  Future<void> clearLoginSession() async {
+  static Future<void> clearLoginSession() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_keyIsLoggedIn, false);
   }
 
-  Future<String?> getUsername() async {
+  static Future<String?> getUsername() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString(_keyUsername);
   }
 
   // --- Hive Helper ('favorite_spells') ---
 
-  Future<Box<SpellModel>> getFavoriteBox() async {
+  static Future<Box<SpellModel>> getFavoriteBox() async {
     if (Hive.isBoxOpen(favoriteSpellsBoxName)) {
       return Hive.box<SpellModel>(favoriteSpellsBoxName);
     }
     return await Hive.openBox<SpellModel>(favoriteSpellsBoxName);
   }
 
-  Box<SpellModel> getOpenBox() {
+  static Box<SpellModel> getOpenBox() {
     return Hive.box<SpellModel>(favoriteSpellsBoxName);
   }
 
-  Future<void> addFavoriteSpell(SpellModel spell) async {
+  static Future<void> addFavoriteSpell(SpellModel spell) async {
     final box = await getFavoriteBox();
     await box.put(spell.spell, spell);
   }
 
-  Future<void> removeFavoriteSpell(String spellName) async {
+  static Future<void> removeFavoriteSpell(String spellName) async {
     final box = await getFavoriteBox();
     await box.delete(spellName);
   }
 
-  Future<bool> isFavorite(String spellName) async {
+  static Future<bool> isFavorite(String spellName) async {
     final box = await getFavoriteBox();
     return box.containsKey(spellName);
   }
 
-  Future<List<SpellModel>> getFavoriteSpells() async {
+  static Future<List<SpellModel>> getFavoriteSpells() async {
     final box = await getFavoriteBox();
     return box.values.toList();
   }
